@@ -99,9 +99,9 @@ function FirebaseFirestore() {
                         Delete
                       </button>
                       <Link to={`/update/${values.id}`}>
-                        <button className="btnn">Edit</button>
+                        <button className="edit">Edit</button>
                       </Link>
-                      <Link to={`/view/${values.id}`}><button>Vieuw</button></Link>
+                      <Link to={`/view/${values.id}`}><button className="vieuw">Vieuw</button></Link>
                     </td>
                   </tr>
               ))}
