@@ -1,23 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { fireDb } from "./firebase";
-import { collection, deleteDoc, doc, getDocs } from "firebase/firestore";
+import { collection, deleteDoc, doc, getDocs, updateDoc } from "firebase/firestore";
 import { Link } from "react-router-dom";
-import{search, setSearch, filteredval} from "react"
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function FirebaseFirestore() {
-  const [id, setId] = useState("");
-  const [name, setname] = useState("");
-  const [address, setaddress] = useState("");
-  const [city, setcity] = useState("");
-  const [pin, setpin] = useState("");
-  const [country, setcountry] = useState("");
-
-  const [show, setShow] = useState(false);
-
   const [val, setVal] = useState([]);
+  const [search, setSearch] = useState("");
 
   const value = collection(fireDb, "User");
-  const [search, setSearch] = useState(""); // State for search
 
   useEffect(() => {
     const getData = async () => {
@@ -27,28 +19,40 @@ function FirebaseFirestore() {
     getData();
   }, []);
 
-  //  fonctino pour la suppression
+ // Fonction pour l'archivage
+const handleArchive = async (id) => {
+  const userDoc = doc(fireDb, "User", id);
+  await updateDoc(userDoc, { isArchived: true });
+  // Mettre à jour l'état après l'archivage
+  setVal(val.filter((item) => item.id !== id));
+};
+
+    // fin methode archiver
+
+//  suppression d'un utulisateur
+
   const handleDelete = async (id) => {
     const deleteVal = doc(fireDb, "User", id);
     await deleteDoc(deleteVal);
-        // Update state after deletion
-        setVal(val.filter((item) => item.id !== id));
+    setVal(val.filter((item) => item.id !== id));
   };
 
-  // METHODE RECHERCHE
+  // fin suppression d'un utulisateur
 
+// methode rechercher
   const filteredUsers = val.filter((user) => {
     return (
-      user.name.toLowerCase().includes(search.toLowerCase()) ||
+      !user.isArchived && // Exclure les utilisateurs archivés
+      (user.name.toLowerCase().includes(search.toLowerCase()) ||
       user.address.toLowerCase().includes(search.toLowerCase()) ||
       user.city.toLowerCase().includes(search.toLowerCase()) ||
       user.pin.toLowerCase().includes(search.toLowerCase()) ||
-      user.country.toLowerCase().includes(search.toLowerCase())
+      user.country.toLowerCase().includes(search.toLowerCase()))
     );
   });
 
+  //  fin methode rechercher
 
-  // FIN  METHODE RECHERCHE
 
   return (
     <div className="container">
@@ -58,11 +62,11 @@ function FirebaseFirestore() {
         </div>
         <div className="card-body">
           <div className="divbtn">
-            <Link to="/create" className="btn btn-success">
-              Add New
-            </Link>
+            <Link to="/create" className="btn btn-success">Add New</Link>
           </div>
-
+          <div>
+            <Link to="/archive" className="liste btn btn-success">Liste des Etudiants archivés</Link>
+          </div>
           <div className="search-bar">
             <input
               type="text"
@@ -71,10 +75,11 @@ function FirebaseFirestore() {
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <table className="table table-bordered">
+          
+          <table className="table table-bordered" style={{ marginTop: "90px" }}>
             <thead className="text-white">
-              <tr >
-                {/* <td className="bg-dark text-white">ID</td> */}
+              <tr>
+                <td className="bg-dark text-white">Photos</td>
                 <td className="bg-dark text-white">Name</td>
                 <td className="bg-dark text-white">ADDRESS</td>
                 <td className="bg-dark text-white">CITY</td>
@@ -84,8 +89,18 @@ function FirebaseFirestore() {
               </tr>
             </thead>
             <tbody>
-              {filteredUsers.map((values) => (               
+              {filteredUsers.length > 0 ? (
+                filteredUsers.map((values) => (
                   <tr key={values.id}>
+                    <td>
+                      <img
+                        src={values.imageUrl}
+                        width="50"
+                        height="50"
+                        alt="User"
+                        style={{ borderRadius: "50%", marginLeft: "30px" }}
+                      />
+                    </td>
                     <td>{values.name}</td>
                     <td>{values.address}</td>
                     <td>{values.city}</td>
@@ -99,12 +114,32 @@ function FirebaseFirestore() {
                         Delete
                       </button>
                       <Link to={`/update/${values.id}`}>
-                        <button className="edit">Edit</button>
+                        <button className="edit btn btn-warning">Edit</button>
                       </Link>
-                      <Link to={`/view/${values.id}`}><button className="vieuw">Vieuw</button></Link>
+                      <Link to={`/view/${values.id}`}>
+                        <button
+                          className="view btn btn-info"
+                          style={{ marginLeft: "50px" }}
+                        >
+                          View
+                        </button>
+                      </Link>
+                      <button
+                        className="arch btn btn-secondary"
+                        onClick={() => handleArchive(values.id)}
+                      >
+                        Archive
+                      </button>
                     </td>
                   </tr>
-              ))}
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="7" className="text-center">
+                    L'étudiant(e) que vous cherchez n'existe pas!
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -112,4 +147,5 @@ function FirebaseFirestore() {
     </div>
   );
 }
+
 export default FirebaseFirestore;

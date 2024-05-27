@@ -6,25 +6,39 @@
   float: right;
 }
 
+.liste{
+   position: relative;
+  left: 400px;
+}
+
 .btn{
   float: left;
 }
 
+/* .arc{
+  color: white;
+} */
+.arch{
+  background: darkkhaki;
+  position: relative;
+  left: -195px;
+  height: 38px;
+  width: 20%;
+}
+.vieuw{
+  height: 38px;
+  width: 20%;
+}
+
  .edit{
   position: relative;
-  left: 50px;
+  left: 230px;
   background-color: #03e9f4;
   height: 38px;
   width: 20%;
 }
 
-.vieuw{
-  position: relative;
-  left: 90px;
-  background-color: #84f403;
-  height: 38px;
-  width: 20%;
-}
+
 
 
 
