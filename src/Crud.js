@@ -4,10 +4,13 @@ import { collection, deleteDoc, doc, getDocs, updateDoc } from "firebase/firesto
 import { Link } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ReactPaginate from "react-paginate";
 
 function FirebaseFirestore() {
   const [val, setVal] = useState([]);
   const [search, setSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(0);
+  const [itemsPerPage] = useState(5);
 
   const value = collection(fireDb, "User");
 
@@ -19,40 +22,42 @@ function FirebaseFirestore() {
     getData();
   }, []);
 
- // Fonction pour l'archivage
-const handleArchive = async (id) => {
-  const userDoc = doc(fireDb, "User", id);
-  await updateDoc(userDoc, { isArchived: true });
-  // Mettre à jour l'état après l'archivage
-  setVal(val.filter((item) => item.id !== id));
-};
+  // Fonction pour l'archivage
+  const handleArchive = async (id) => {
+    const userDoc = doc(fireDb, "User", id);
+    await updateDoc(userDoc, { isArchived: true });
+    // Mettre à jour l'état après l'archivage
+    setVal(val.filter((item) => item.id !== id));
+  };
 
-    // fin methode archiver
-
-//  suppression d'un utulisateur
-
+  // suppression d'un utilisateur
   const handleDelete = async (id) => {
     const deleteVal = doc(fireDb, "User", id);
     await deleteDoc(deleteVal);
     setVal(val.filter((item) => item.id !== id));
   };
 
-  // fin suppression d'un utulisateur
-
-// methode rechercher
+  // Filtrage des utilisateurs
   const filteredUsers = val.filter((user) => {
     return (
-      !user.isArchived && // Exclure les utilisateurs archivés
+      !user.isArchived &&
       (user.name.toLowerCase().includes(search.toLowerCase()) ||
-      user.address.toLowerCase().includes(search.toLowerCase()) ||
-      user.city.toLowerCase().includes(search.toLowerCase()) ||
-      user.pin.toLowerCase().includes(search.toLowerCase()) ||
-      user.country.toLowerCase().includes(search.toLowerCase()))
+        user.address.toLowerCase().includes(search.toLowerCase()) ||
+        user.city.toLowerCase().includes(search.toLowerCase()) ||
+        user.pin.toLowerCase().includes(search.toLowerCase()) ||
+        user.country.toLowerCase().includes(search.toLowerCase()))
     );
   });
 
-  //  fin methode rechercher
+  // Pagination
+  const pageCount = Math.ceil(filteredUsers.length / itemsPerPage);
+  const startOffset = currentPage * itemsPerPage;
+  const endOffset = startOffset + itemsPerPage;
+  const currentItems = filteredUsers.slice(startOffset, endOffset);
 
+  const handlePageClick = (event) => {
+    setCurrentPage(event.selected);
+  };
 
   return (
     <div className="container">
@@ -89,8 +94,8 @@ const handleArchive = async (id) => {
               </tr>
             </thead>
             <tbody>
-              {filteredUsers.length > 0 ? (
-                filteredUsers.map((values) => (
+              {currentItems.length > 0 ? (
+                currentItems.map((values) => (
                   <tr key={values.id}>
                     <td>
                       <img
@@ -142,6 +147,18 @@ const handleArchive = async (id) => {
               )}
             </tbody>
           </table>
+          {/* PAGINATION */}
+          <ReactPaginate
+            previousLabel={"precedent"}
+            nextLabel={"suivant"}
+            breakLabel={"..."}
+            pageCount={pageCount}
+            marginPagesDisplayed={2}
+            pageRangeDisplayed={3}
+            onPageChange={handlePageClick}
+            containerClassName={"pagination"}
+            activeClassName={"active"}
+          />
         </div>
       </div>
     </div>

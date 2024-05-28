@@ -15,9 +15,7 @@
   float: left;
 }
 
-/* .arc{
-  color: white;
-} */
+
 .arch{
   background: darkkhaki;
   position: relative;
@@ -121,3 +119,39 @@ html {
   color: white;
   background: rgb(244, 95, 95);
 }
+
+
+/* PAGINATION */
+.pagination {
+  display: flex;
+  float: right;
+  list-style-type: none;
+  padding: 0;
+}
+
+.pagination li {
+  margin: 0 5px; /* Espacement entre les éléments de pagination */
+}
+
+.pagination li a {
+  display: block;
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  color: #007bff;
+  text-decoration: none;
+  background-color: #f9f9f9; /* Background pour les pages non actives */
+  border-radius: 5px;
+}
+
+.pagination li a:hover {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.pagination li.active a {
+  background-color: #007bff; /* Background pour la page active */
+  color: white;
+  border-color: #007bff;
+}
+
+/* FIN PAGINATION */
